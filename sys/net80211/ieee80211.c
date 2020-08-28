@@ -2110,7 +2110,7 @@ ieee80211_media_change(struct ifnet *ifp)
 		vap->iv_des_mode = newmode;
 		/* XXX kick state machine if up+running */
 	}
-	return 0;
+	return ENETRESET;
 }
 
 /*
