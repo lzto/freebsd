@@ -895,6 +895,15 @@ vfs_domount_first(
 	    (error1 = VFS_ROOT(mp, LK_EXCLUSIVE, &newdp)) != 0) {
 		if (error1 != 0) {
 			error = error1;
+			/*
+			 * if mounted as rw - we should increase mnt_writeopcount here
+			 * since VFS_UNMOUNT will call vfs_write_suspend_umnt() and
+			 * it expects a non-zero vfs_write_suspend_umnt
+			 */
+			if ((mp->mnt_flag & MNT_RDONLY) == 0) {
+				if ((error = vn_start_write(NULL, &mp, V_WAIT)) != 0)
+					return (error);
+			}
 			if ((error1 = VFS_UNMOUNT(mp, 0)) != 0)
 				printf("VFS_UNMOUNT returned %d\n", error1);
 		}
